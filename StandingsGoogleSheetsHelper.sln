@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StandingsGoogleSheetsHelper", "src\StandingsGoogleSheetsHelper.csproj", "{235AB1AA-0940-42B5-8852-DE0127D75D73}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StandingsGoogleSheetsHelper", "src\StandingsGoogleSheetsHelper.csproj", "{235AB1AA-0940-42B5-8852-DE0127D75D73}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "submodules", "submodules", "{E1094BA5-ADA9-41AE-9D10-789321609C23}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoogleSheetsHelper", "GoogleSheetsHelper\src\GoogleSheetsHelper.csproj", "{E891402D-6A74-43BE-AA8C-65A546D71BDE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,9 +19,16 @@ Global
 		{235AB1AA-0940-42B5-8852-DE0127D75D73}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{235AB1AA-0940-42B5-8852-DE0127D75D73}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{235AB1AA-0940-42B5-8852-DE0127D75D73}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E891402D-6A74-43BE-AA8C-65A546D71BDE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E891402D-6A74-43BE-AA8C-65A546D71BDE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E891402D-6A74-43BE-AA8C-65A546D71BDE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E891402D-6A74-43BE-AA8C-65A546D71BDE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E891402D-6A74-43BE-AA8C-65A546D71BDE} = {E1094BA5-ADA9-41AE-9D10-789321609C23}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4302E240-C212-464F-971D-83129BD992BB}
