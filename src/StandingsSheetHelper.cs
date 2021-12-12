@@ -10,18 +10,26 @@ namespace StandingsGoogleSheetsHelper
 	/// </summary>
 	public abstract class StandingsSheetHelper
 	{
-		protected List<string> HeaderRowColumns { get; private set; }
+		/// <summary>
+		/// A collection of all the header columns (including the ones in <see cref="StandingsTableColumns"/>)
+		/// </summary>
+		public List<string> HeaderRowColumns { get; private set; }
+		/// <summary>
+		/// A collection of the header columns used to make up the standings table
+		/// </summary>
+		public List<string> StandingsTableColumns { get; private set; }
 
-		protected StandingsSheetHelper(IEnumerable<string> headerColumns)
+		protected StandingsSheetHelper(IEnumerable<string> headerColumns, IEnumerable<string> standingsTableColumns)
 		{
 			HeaderRowColumns = new List<string>(headerColumns);
+			StandingsTableColumns = new List<string>(standingsTableColumns);
 		}
 
 		/// <summary>
 		/// Gets the column index (zero-based) by header value (from <see cref="Constants"/>).
 		/// </summary>
 		/// <param name="colHeader"></param>
-		/// <returns>For example, <see cref="Constants.HDR_HOME_TEAM"/> returns 0 because it's the first column.</returns>
+		/// <returns>For example, <see cref="Constants.HDR_HOME_TEAM"/> returns 0 because it's the first column. If the column isn't being used, then returns -1.</returns>
 		public virtual int GetColumnIndexByHeader(string colHeader)
 		{
 			int idx = HeaderRowColumns.IndexOf(colHeader);
@@ -32,11 +40,13 @@ namespace StandingsGoogleSheetsHelper
 		/// Gets the column name by header value (from <see cref="Constants"/>).
 		/// </summary>
 		/// <param name="colHeader"></param>
-		/// <returns>For example, <see cref="Constants.HDR_HOME_TEAM"/> returns "A" because it's the first column.</returns>
+		/// <returns>For example, <see cref="Constants.HDR_HOME_TEAM"/> returns "A" because it's the first column. If the column isn't being used, then returns null.</returns>
 		public string GetColumnNameByHeader(string colHeader)
 		{
-			byte idx = (byte)GetColumnIndexByHeader(colHeader);
-			return RequestCreator.ConvertIndexToColumnName(idx);
+			int idx = GetColumnIndexByHeader(colHeader);
+			if (idx == -1)
+				return null;
+			return Utilities.ConvertIndexToColumnName(idx);
 		}
 
 		public string HomeTeamColumnName => GetColumnNameByHeader(Constants.HDR_HOME_TEAM);
@@ -56,7 +66,7 @@ namespace StandingsGoogleSheetsHelper
 		public string GoalsAgainstColumnName => GetColumnNameByHeader(Constants.HDR_GOALS_AGAINST);
 		public string GoalDifferentialColumnName => GetColumnNameByHeader(Constants.HDR_GOAL_DIFF);
 
-		public IEnumerable<Request> CreateStandingsTableCellWidthRequests(Sheet sheet, int teamNameColumnWidth)
+		public IEnumerable<Request> CreateCellWidthRequests(Sheet sheet, int teamNameColumnWidth)
 		{
 			List<Request> requests = new List<Request>();
 			foreach (string header in HeaderRowColumns)

@@ -8,6 +8,7 @@ namespace StandingsGoogleSheetsHelper
 	public class FormulaGenerator
     {
 		private readonly StandingsSheetHelper _sheetHelper;
+		public StandingsSheetHelper SheetHelper { get => _sheetHelper; }
 
 		public FormulaGenerator(StandingsSheetHelper helper)
 		{
@@ -128,12 +129,25 @@ namespace StandingsGoogleSheetsHelper
 		/// <param name="startRowNum">The starting row number of the game scores that need to be considered</param>
 		/// <param name="endRowNum">The end row number of the game scores that need to be considered</param>
 		/// <param name="firstTeamCell">Cell where the first team is listed (e.g., "Teams!A2")</param>
-		/// <param name="goalsFor">Flag indicating we are calculating goals for (set to false for goals against)</param>
 		/// <returns></returns>
 		/// <remarks>SUMIFS(B$21:B$28, A$21:A$28,"="&Teams!A2)+SUMIFS(C$21:C$28, D$21:D$28,"="&Teams!A2)
 		/// = sum of home goals column where home team = team name + sum of away goals column where away team = team name
 		/// When doing goals against, swap the home and away goal columns</remarks>
-		public string GetGoalsScoredFormula(int startRowNum, int endRowNum, string firstTeamCell, bool goalsFor)
+		public string GetGoalsScoredFormula(int startRowNum, int endRowNum, string firstTeamCell) => GetGoalsFormula(startRowNum, endRowNum, firstTeamCell, true);
+
+		/// <summary>
+		/// Gets the formula for determining the number of goals conceded
+		/// </summary>
+		/// <param name="startRowNum">The starting row number of the game scores that need to be considered</param>
+		/// <param name="endRowNum">The end row number of the game scores that need to be considered</param>
+		/// <param name="firstTeamCell">Cell where the first team is listed (e.g., "Teams!A2")</param>
+		/// <returns></returns>
+		/// <remarks>SUMIFS(C$21:C$28, A$21:A$28,"="&Teams!A2)+SUMIFS(B$21:B$28, D$21:D$28,"="&Teams!A2)
+		/// = sum of away goals column where home team = team name + sum of home goals column where away team = team name
+		/// </remarks>
+		public string GetGoalsAgainstFormula(int startRowNum, int endRowNum, string firstTeamCell) => GetGoalsFormula(startRowNum, endRowNum, firstTeamCell, false);
+
+		private string GetGoalsFormula(int startRowNum, int endRowNum, string firstTeamCell, bool goalsFor)
 		{
 			string homeGoalsCellRange = Utilities.CreateCellRangeString(_sheetHelper.HomeGoalsColumnName, startRowNum, endRowNum, CellRangeOptions.FixRow);
 			string awayGoalsCellRange = Utilities.CreateCellRangeString(_sheetHelper.AwayGoalsColumnName, startRowNum, endRowNum, CellRangeOptions.FixRow);

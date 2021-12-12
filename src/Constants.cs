@@ -1,4 +1,6 @@
-﻿namespace StandingsGoogleSheetsHelper
+﻿using System.Collections.Generic;
+
+namespace StandingsGoogleSheetsHelper
 {
 	public static class Constants
 	{
@@ -26,14 +28,24 @@
 		public const string HDR_GOAL_DIFF = "GD";
 		// Core season specific
 		public const string HDR_REF_PTS = "REF";
+		public const string HDR_VOL_PTS = "VOL";
+		public const string HDR_SPORTSMANSHIP_PTS = "SPT";
+		public const string HDR_PTS_DEDUCTION = "DED";
 		// Tournament specific
 		public const string HDR_YELLOW_CARDS = "YC";
 		public const string HDR_RED_CARDS = "RC";
 		public const string HDR_HOME_PTS = "Pts (H)";
 		public const string HDR_AWAY_PTS = "Pts (A)";
-		public const string HDR_CALC_RANK = "C-RANK";
+		public const string HDR_CALC_RANK = "C-RANK"; // "Calculated rank" -- rank based on the formula but doesn't take into account a manual tiebreaker
 		public const string HDR_TIEBREAKER = "TB";
 
+		/// <summary>
+		/// The standard headers for the columns to enter game scores (in this order): home team, home score, away score, away team, game winner
+		/// </summary>
+		public static IEnumerable<string> GameScoreColumnHeaders = new[]
+		{
+			HDR_HOME_TEAM, HDR_HOME_GOALS, HDR_AWAY_GOALS, HDR_AWAY_TEAM, HDR_WINNING_TEAM
+		};
 
 		public const int WIDTH_WINNING_TEAM_COL = 65;
 		public const int WIDTH_NUM_COL = 30;
