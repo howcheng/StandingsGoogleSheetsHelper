@@ -180,7 +180,25 @@ namespace StandingsGoogleSheetsHelper
 		public Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
 			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
-				$"=({_formulaGenerator.SheetHelper.NumWinsColumnName}{config.StartGamesRowNum}*3)+({_formulaGenerator.SheetHelper.NumDrawsColumnName}{config.StartGamesRowNum}*1)");
+				_formulaGenerator.GetGamePointsFormula(config.StartGamesRowNum));
+			return request;
+		}
+	}
+
+	/// <summary>
+	/// Creates a <see cref="Request"/> for building the column for team rank
+	/// </summary>
+	public class TeamRankRequestCreator : StandingsRequestCreator, IStandingsRequestCreator
+	{
+		public TeamRankRequestCreator(FormulaGenerator formGen) 
+			: base(formGen, Constants.HDR_RANK)
+		{
+		}
+
+		public Request CreateRequest(StandingsRequestCreatorConfig config)
+		{
+			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
+				_formulaGenerator.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.NumTeams));
 			return request;
 		}
 	}
@@ -219,10 +237,8 @@ namespace StandingsGoogleSheetsHelper
 
 		public Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
-			string gfStartCell = $"{_formulaGenerator.SheetHelper.GoalsForColumnName}{config.StartGamesRowNum}";
-			string gaStartCell = $"{_formulaGenerator.SheetHelper.GoalsAgainstColumnName}{config.StartGamesRowNum}";
 			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
-				_formulaGenerator.GetGoalDifferentialFormula(gfStartCell, gaStartCell));
+				_formulaGenerator.GetGoalDifferentialFormula(config.StartGamesRowNum));
 			return request;
 		}
 	}

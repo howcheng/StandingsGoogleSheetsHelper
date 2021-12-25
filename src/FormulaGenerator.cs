@@ -43,8 +43,10 @@ namespace StandingsGoogleSheetsHelper
 		/// <param name="endRowNum">The end row number of the game scores that need to be considered</param>
 		/// <param name="firstTeamCell">Cell where the first team is listed (e.g., "Teams!A2")</param>
 		/// <returns></returns>
-		/// <remarks>COUNTIFS(A$21:A$28,"="&Teams!A2,B$21:B$28,"&lt;&gt;")+COUNTIFS(D$21:D$28,"="&Teams!A2,C$21:C$28,"&lt;&gt;")
-		/// = count of number of times team name appears in Home column + same for Away column but only when a score has also been entered (that's the "&lt;&gt;" part)</remarks>
+		/// <remarks>=COUNTIFS(A$21:A$28,"="&Teams!A2,B$21:B$28,"&lt;&gt;")+COUNTIFS(D$21:D$28,"="&Teams!A2,C$21:C$28,"&lt;&gt;")
+		/// = count of number of times team name appears in Home column + same for Away column but only when a score has also been entered (that's the "&lt;&gt;" part)
+		/// 
+		/// NOTE: Does not include the leading = sign because for tournament usage, you'll combine several of these to make a more complex formula</remarks>
 		public string GetGamesPlayedFormula(int startRowNum, int endRowNum, string firstTeamCell)
 		{
 			string homeTeamFormula = GetFormulaForGameRangePerTeam(_sheetHelper.HomeTeamColumnName, startRowNum, endRowNum, firstTeamCell);
@@ -66,7 +68,9 @@ namespace StandingsGoogleSheetsHelper
 		/// <param name="firstTeamCell">Cell where the first team is listed (e.g., "Teams!A2")</param>
 		/// <returns></returns>
 		/// <remarks>COUNTIFS(A$21:A$28,"="&Teams!A2,E$21:E$28,"H")+COUNTIFS(D$21:D$28,"="&Teams!A2,E$21:E$28,"A")
-		/// = count number of times team name appears in Home column AND winning team = H + same for away column AND winning team = A</remarks>
+		/// = count number of times team name appears in Home column AND winning team = H + same for away column AND winning team = A
+		/// 
+		/// NOTE: Does not include the leading = sign because for tournament usage, you'll combine several of these to make a more complex formula</remarks>
 		public string GetGamesWonFormula(int startRowNum, int endRowNum, string firstTeamCell)
 		{
 			string homeTeamFormula = GetFormulaForGameRangePerTeam(_sheetHelper.HomeTeamColumnName, startRowNum, endRowNum, firstTeamCell);
@@ -83,7 +87,9 @@ namespace StandingsGoogleSheetsHelper
 		/// <param name="firstTeamCell">Cell where the first team is listed (e.g., "Teams!A2")</param>
 		/// <returns></returns>
 		/// <remarks>COUNTIFS(A$21:A$28,"="&Teams!A2,E$21:E$28,"A")+COUNTIFS(D$21:D$28,"="&Teams!A2,E$21:E$28,"H")
-		/// = count number of times team name appears in Home column AND winning team = A + same for away column AND winning team = H</remarks>
+		/// = count number of times team name appears in Home column AND winning team = A + same for away column AND winning team = H
+		/// 
+		/// NOTE: Does not include the leading = sign because for tournament usage, you'll combine several of these to make a more complex formula</remarks>
 		public string GetGamesLostFormula(int startRowNum, int endRowNum, string firstTeamCell)
 		{
 			string homeTeamFormula = GetFormulaForGameRangePerTeam(_sheetHelper.HomeTeamColumnName, startRowNum, endRowNum, firstTeamCell);
@@ -100,13 +106,28 @@ namespace StandingsGoogleSheetsHelper
 		/// <param name="firstTeamCell">Cell where the first team is listed (e.g., "Teams!A2")</param>
 		/// <returns></returns>
 		/// <remarks>COUNTIFS(A$21:A$28,"="&Teams!A2,E$21:E$28,"D")+COUNTIFS(D$21:D$28,"="&Teams!A2,E$21:E$28,"D")
-		/// = count number of times team name appears in Home column AND winning team = D + same for away column</remarks>
+		/// = count number of times team name appears in Home column AND winning team = D + same for away column
+		/// 
+		/// NOTE: Does not include the leading = sign because for tournament usage, you'll combine several of these to make a more complex formula</remarks>
 		public string GetGamesDrawnFormula(int startRowNum, int endRowNum, string firstTeamCell)
 		{
 			string homeTeamFormula = GetFormulaForGameRangePerTeam(_sheetHelper.HomeTeamColumnName, startRowNum, endRowNum, firstTeamCell);
 			string awayTeamFormula = GetFormulaForGameRangePerTeam(_sheetHelper.AwayTeamColumnName, startRowNum, endRowNum, firstTeamCell);
 			string whoWonCellRange = Utilities.CreateCellRangeString(_sheetHelper.WinnerColumnName, startRowNum, endRowNum, CellRangeOptions.FixRow);
 			return $"COUNTIFS({homeTeamFormula},{whoWonCellRange},\"{Constants.DRAW_INDICATOR}\")+COUNTIFS({awayTeamFormula},{whoWonCellRange},\"{Constants.DRAW_INDICATOR}\")";
+		}
+		
+		/// <summary>
+		/// Gets the formula for determining the number of points a team has: 3 pts for a win, 1 pt for a draw
+		/// </summary>
+		/// <param name="startRowNum">The starting row number of the game scores that need to be considered</param>
+		/// <returns></returns>
+		/// <remarks>H</remarks>
+		public string GetGamePointsFormula(int startRowNum)
+		{
+			string ptsFromWinsFormula = $"{_sheetHelper.NumWinsColumnName}{startRowNum}*3";
+			string ptsFromDrawsFormula = $"{_sheetHelper.NumDrawsColumnName}{startRowNum}";
+			return $"=({ptsFromWinsFormula}) + {ptsFromDrawsFormula}";
 		}
 
 		/// <summary>
@@ -118,9 +139,9 @@ namespace StandingsGoogleSheetsHelper
 		/// <remarks>RANK(M3,M$3:M$18)</remarks>
 		public string GetTeamRankFormula(int startRowNum, int endRowNum)
 		{
-			string columnName = _sheetHelper.RankColumnName;
+			string columnName = _sheetHelper.TotalPointsColumnName;
 			string cellRange = Utilities.CreateCellRangeString(columnName, startRowNum, endRowNum, CellRangeOptions.FixRow);
-			return $"RANK({columnName}{startRowNum},{cellRange})";
+			return $"=RANK({columnName}{startRowNum},{cellRange})";
 		}
 
 		/// <summary>
@@ -132,7 +153,9 @@ namespace StandingsGoogleSheetsHelper
 		/// <returns></returns>
 		/// <remarks>SUMIFS(B$21:B$28, A$21:A$28,"="&Teams!A2)+SUMIFS(C$21:C$28, D$21:D$28,"="&Teams!A2)
 		/// = sum of home goals column where home team = team name + sum of away goals column where away team = team name
-		/// When doing goals against, swap the home and away goal columns</remarks>
+		/// When doing goals against, swap the home and away goal columns
+		/// 
+		/// NOTE: Does not include the leading = because <see cref="ScoreBasedStandingsRequestCreator"/> will include it</remarks>
 		public string GetGoalsScoredFormula(int startRowNum, int endRowNum, string firstTeamCell) => GetGoalsFormula(startRowNum, endRowNum, firstTeamCell, true);
 
 		/// <summary>
@@ -144,7 +167,8 @@ namespace StandingsGoogleSheetsHelper
 		/// <returns></returns>
 		/// <remarks>SUMIFS(C$21:C$28, A$21:A$28,"="&Teams!A2)+SUMIFS(B$21:B$28, D$21:D$28,"="&Teams!A2)
 		/// = sum of away goals column where home team = team name + sum of home goals column where away team = team name
-		/// </remarks>
+		/// 
+		/// NOTE: Does not include the leading = because <see cref="ScoreBasedStandingsRequestCreator"/> will include it</remarks>
 		public string GetGoalsAgainstFormula(int startRowNum, int endRowNum, string firstTeamCell) => GetGoalsFormula(startRowNum, endRowNum, firstTeamCell, false);
 
 		private string GetGoalsFormula(int startRowNum, int endRowNum, string firstTeamCell, bool goalsFor)
@@ -159,13 +183,14 @@ namespace StandingsGoogleSheetsHelper
 		/// <summary>
 		/// Gets the formula for goal differential
 		/// </summary>
-		/// <param name="goalsForStartCell"></param>
-		/// <param name="goalsAgainstStartCell"></param>
 		/// <returns></returns>
+		/// <param name="startRowNum">The starting row number of the game scores that need to be considered</param>
 		/// <remarks>P3 - Q3</remarks>
-		public string GetGoalDifferentialFormula(string goalsForStartCell, string goalsAgainstStartCell)
+		public string GetGoalDifferentialFormula(int startRowNum)
 		{
-			return $"{goalsForStartCell} - {goalsAgainstStartCell}";
+			string gfStartCell = $"{_sheetHelper.GoalsForColumnName}{startRowNum}";
+			string gaStartCell = $"{_sheetHelper.GoalsAgainstColumnName}{startRowNum}";
+			return $"={gfStartCell} - {gaStartCell}";
 		}
 
 		private string GetFormulaForGameRangePerTeam(string columnName, int startRow, int endRow, string firstTeamCell)

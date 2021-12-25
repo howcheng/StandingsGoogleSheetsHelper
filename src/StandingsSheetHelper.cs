@@ -106,7 +106,7 @@ namespace StandingsGoogleSheetsHelper
 					{
 						Range = new DimensionRange
 						{
-							Dimension = "COLUMNS",
+							Dimension = Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource.BatchGetRequest.MajorDimensionEnum.COLUMNS.ToString(),
 							SheetId = sheet.Properties.SheetId,
 							StartIndex = colIndex,
 							EndIndex = colIndex + 1,
@@ -115,7 +115,7 @@ namespace StandingsGoogleSheetsHelper
 						{
 							PixelSize = colWidth,
 						},
-						Fields = "*"
+						Fields = nameof(DimensionProperties.PixelSize).ToCamelCase(),
 					},
 				};
 				requests.Add(request);
