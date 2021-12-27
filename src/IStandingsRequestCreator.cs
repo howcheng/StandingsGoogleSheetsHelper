@@ -97,10 +97,14 @@ namespace StandingsGoogleSheetsHelper
 		/// The row number of the first row in the standings table of the previous round (0 when it's round 1)
 		/// </summary>
 		public int LastRoundStartRowNum { get; set; }
+		/// <summary>
+		/// Indicates that games from the current round are used to calculate standings (when <c>false</c>, all games are treated as scrimmages)
+		/// </summary>
+		public bool RoundCountsForStandings { get; set; } = true;
 	}
 
 	/// <summary>
-	/// Base class for classes that create a <see cref="Request"/> to build a column based on the game results in the standings table (e.g., games played, wins)
+	/// Base class for classes that create a <see cref="Request"/> to build a column based on the game results in the standings table (e.g., goals scored/conceded)
 	/// </summary>
 	public abstract class ScoreBasedStandingsRequestCreator : StandingsRequestCreator
 	{
@@ -113,7 +117,7 @@ namespace StandingsGoogleSheetsHelper
 			_formulaGeneratorMethod = formulaGeneratorMethod;
 		}
 
-		public Request CreateRequest(StandingsRequestCreatorConfig config)
+		public virtual Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
 			_config = (ScoreBasedStandingsRequestCreatorConfig)config;
 			string addLastRoundValueFormula = GetAddLastRoundValueFormula(_config.LastRoundStartRowNum);
@@ -124,9 +128,72 @@ namespace StandingsGoogleSheetsHelper
 	}
 
 	/// <summary>
+	/// Base class for classes that create a <see cref="Request"/> to build a column based on the game results in the standings table
+	/// where the game may or may not be a scrimmage (e.g., games played, wins)
+	/// </summary>
+	public abstract class ScrimmageBasedStandingsRequestCreator : ScoreBasedStandingsRequestCreator
+	{
+		private ScoreBasedStandingsRequestCreatorConfig _config;
+
+		protected ScrimmageBasedStandingsRequestCreator(FormulaGenerator formGen, string columnHeader, Func<int, int, string, string> formulaGeneratorMethod)
+			: base(formGen, columnHeader, formulaGeneratorMethod)
+		{
+		}
+
+		public override Request CreateRequest(StandingsRequestCreatorConfig config)
+		{
+			_config = (ScoreBasedStandingsRequestCreatorConfig)config;
+			if (_config.RoundCountsForStandings)
+				return base.CreateRequest(config);
+
+			// when it's the game doesn't count for standings, enter a zero
+			return new Request
+			{
+				RepeatCell = new RepeatCellRequest
+				{
+					Range = new GridRange
+					{
+						SheetId = _config.SheetId,
+						StartRowIndex = _config.SheetStartRowIndex,
+						StartColumnIndex = _columnIndex,
+						EndRowIndex = _config.SheetStartRowIndex + _config.NumTeams,
+						EndColumnIndex = _columnIndex + 1,
+					},
+					Cell = new CellData
+					{
+						 UserEnteredValue = new ExtendedValue
+						 {
+							 NumberValue = 0,
+						 }
+					},
+					Fields = nameof(CellData.UserEnteredValue).ToCamelCase(),
+				},
+			};
+		}
+	}
+
+	/// <summary>
+	/// Creates a <see cref="Request"/> for building the column for determining which team won
+	/// </summary>
+	public class GameWinnerRequestCreator : StandingsRequestCreator, IStandingsRequestCreator
+	{
+		public GameWinnerRequestCreator(FormulaGenerator formGen) 
+			: base(formGen, Constants.HDR_WINNING_TEAM)
+		{
+		}
+
+		public Request CreateRequest(StandingsRequestCreatorConfig config)
+		{
+			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
+				_formulaGenerator.GetGameWinnerFormula(config.StartGamesRowNum));
+			return request;
+		}
+	}
+
+	/// <summary>
 	/// Creates a <see cref="Request"/> for building the column for number of games played
 	/// </summary>
-	public class GamesPlayedRequestCreator : ScoreBasedStandingsRequestCreator, IStandingsRequestCreator
+	public class GamesPlayedRequestCreator : ScrimmageBasedStandingsRequestCreator, IStandingsRequestCreator
 	{
 		public GamesPlayedRequestCreator(FormulaGenerator formGen)
 			: base(formGen, Constants.HDR_GAMES_PLAYED, formGen.GetGamesPlayedFormula)
@@ -137,7 +204,7 @@ namespace StandingsGoogleSheetsHelper
 	/// <summary>
 	/// Creates a <see cref="Request"/> for building the column for number of games won
 	/// </summary>
-	public class GamesWonRequestCreator : ScoreBasedStandingsRequestCreator, IStandingsRequestCreator
+	public class GamesWonRequestCreator : ScrimmageBasedStandingsRequestCreator, IStandingsRequestCreator
 	{
 		public GamesWonRequestCreator(FormulaGenerator formGen)
 			: base(formGen, Constants.HDR_NUM_WINS, formGen.GetGamesWonFormula)
@@ -148,7 +215,7 @@ namespace StandingsGoogleSheetsHelper
 	/// <summary>
 	/// Creates a <see cref="Request"/> for building the column for number of games lost
 	/// </summary>
-	public class GamesLostRequestCreator : ScoreBasedStandingsRequestCreator, IStandingsRequestCreator
+	public class GamesLostRequestCreator : ScrimmageBasedStandingsRequestCreator, IStandingsRequestCreator
 	{
 		public GamesLostRequestCreator(FormulaGenerator formGen)
 			: base(formGen, Constants.HDR_NUM_LOSSES, formGen.GetGamesLostFormula)
@@ -159,7 +226,7 @@ namespace StandingsGoogleSheetsHelper
 	/// <summary>
 	/// Creates a <see cref="Request"/> for building the column for number of games drawn (tied)
 	/// </summary>
-	public class GamesDrawnRequestCreator : ScoreBasedStandingsRequestCreator, IStandingsRequestCreator
+	public class GamesDrawnRequestCreator : ScrimmageBasedStandingsRequestCreator, IStandingsRequestCreator
 	{
 		public GamesDrawnRequestCreator(FormulaGenerator formGen)
 			: base(formGen, Constants.HDR_NUM_DRAWS, formGen.GetGamesDrawnFormula)
