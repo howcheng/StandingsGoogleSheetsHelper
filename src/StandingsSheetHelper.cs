@@ -66,6 +66,12 @@ namespace StandingsGoogleSheetsHelper
 		public string GoalsAgainstColumnName => GetColumnNameByHeader(Constants.HDR_GOALS_AGAINST);
 		public string GoalDifferentialColumnName => GetColumnNameByHeader(Constants.HDR_GOAL_DIFF);
 
+		/// <summary>
+		/// Creates <see cref="Request"/>s to resize the columns of the scores and standings sheet
+		/// </summary>
+		/// <param name="sheet"></param>
+		/// <param name="teamNameColumnWidth">The width of the team name column (after having used <see cref="SheetsClient.AutoResizeColumn(string, int)"/>, as this depends on the longest team name)</param>
+		/// <returns></returns>
 		public IEnumerable<Request> CreateCellWidthRequests(Sheet sheet, int teamNameColumnWidth)
 		{
 			List<Request> requests = new List<Request>();
@@ -100,24 +106,7 @@ namespace StandingsGoogleSheetsHelper
 					continue;
 
 				int colIndex = HeaderRowColumns.IndexOf(header);
-				Request request = new Request
-				{
-					UpdateDimensionProperties = new UpdateDimensionPropertiesRequest
-					{
-						Range = new DimensionRange
-						{
-							Dimension = Google.Apis.Sheets.v4.SpreadsheetsResource.ValuesResource.BatchGetRequest.MajorDimensionEnum.COLUMNS.ToString(),
-							SheetId = sheet.Properties.SheetId,
-							StartIndex = colIndex,
-							EndIndex = colIndex + 1,
-						},
-						Properties = new DimensionProperties
-						{
-							PixelSize = colWidth,
-						},
-						Fields = nameof(DimensionProperties.PixelSize).ToCamelCase(),
-					},
-				};
+				Request request = RequestCreator.CreateCellWidthRequest(sheet.Properties.SheetId, colWidth.Value, colIndex);
 				requests.Add(request);
 			}
 			return requests;

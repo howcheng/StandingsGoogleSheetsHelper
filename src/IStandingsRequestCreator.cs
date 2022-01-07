@@ -42,6 +42,8 @@ namespace StandingsGoogleSheetsHelper
 			_formulaGenerator = formGen;
 			_columnHeader = columnHeader;
 			_columnName = _formulaGenerator.SheetHelper.GetColumnNameByHeader(columnHeader);
+			if (columnHeader == null)
+				throw new ArgumentException($"Can't find column '{columnHeader}' the collection. Did you forget to add it to {nameof(StandingsSheetHelper)}.{nameof(StandingsSheetHelper.HeaderRowColumns)}?", nameof(columnHeader));
 			_columnIndex = _formulaGenerator.SheetHelper.GetColumnIndexByHeader(columnHeader);
 		}
 
