@@ -77,9 +77,9 @@ namespace StandingsGoogleSheetsHelper
 		/// </summary>
 		public int StartGamesRowNum { get; set; }
 		/// <summary>
-		/// The number of teams in the current division
+		/// The number of rows affected by this request (e.g., the number of game rows, or the number of teams)
 		/// </summary>
-		public int NumTeams { get; set; }
+		public int RowCount { get; set; }
 	}
 
 	/// <summary>
@@ -123,7 +123,7 @@ namespace StandingsGoogleSheetsHelper
 		{
 			_config = (ScoreBasedStandingsRequestCreatorConfig)config;
 			string addLastRoundValueFormula = GetAddLastRoundValueFormula(_config.LastRoundStartRowNum);
-			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(_config.SheetId, _config.SheetStartRowIndex, _columnIndex, _config.NumTeams,
+			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(_config.SheetId, _config.SheetStartRowIndex, _columnIndex, _config.RowCount,
 				$"={_formulaGeneratorMethod(_config.StartGamesRowNum, _config.EndGamesRowNum, _config.FirstTeamsSheetCell)}{addLastRoundValueFormula}");
 			return request;
 		}
@@ -158,7 +158,7 @@ namespace StandingsGoogleSheetsHelper
 						SheetId = _config.SheetId,
 						StartRowIndex = _config.SheetStartRowIndex,
 						StartColumnIndex = _columnIndex,
-						EndRowIndex = _config.SheetStartRowIndex + _config.NumTeams,
+						EndRowIndex = _config.SheetStartRowIndex + _config.RowCount,
 						EndColumnIndex = _columnIndex + 1,
 					},
 					Cell = new CellData
@@ -186,7 +186,7 @@ namespace StandingsGoogleSheetsHelper
 
 		public Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
-			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
+			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.RowCount,
 				_formulaGenerator.GetGameWinnerFormula(config.StartGamesRowNum));
 			return request;
 		}
@@ -248,7 +248,7 @@ namespace StandingsGoogleSheetsHelper
 
 		public Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
-			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
+			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.RowCount,
 				_formulaGenerator.GetGamePointsFormula(config.StartGamesRowNum));
 			return request;
 		}
@@ -266,8 +266,8 @@ namespace StandingsGoogleSheetsHelper
 
 		public Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
-			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
-				_formulaGenerator.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.NumTeams));
+			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.RowCount,
+				_formulaGenerator.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.RowCount));
 			return request;
 		}
 	}
@@ -306,7 +306,7 @@ namespace StandingsGoogleSheetsHelper
 
 		public Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
-			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.NumTeams,
+			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.RowCount,
 				_formulaGenerator.GetGoalDifferentialFormula(config.StartGamesRowNum));
 			return request;
 		}
