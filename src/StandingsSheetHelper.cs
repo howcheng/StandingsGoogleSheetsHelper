@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Google.Apis.Sheets.v4.Data;
 using GoogleSheetsHelper;
 
@@ -8,45 +8,38 @@ namespace StandingsGoogleSheetsHelper
 	/// <summary>
 	/// Base class for helper methods to make sheets that show team standings
 	/// </summary>
-	public abstract class StandingsSheetHelper
+	public class StandingsSheetHelper : SheetHelper
 	{
-		/// <summary>
-		/// A collection of all the header columns (including the ones in <see cref="StandingsTableColumns"/>)
-		/// </summary>
-		public List<string> HeaderRowColumns { get; private set; }
 		/// <summary>
 		/// A collection of the header columns used to make up the standings table
 		/// </summary>
-		public List<string> StandingsTableColumns { get; private set; }
+		public List<string> StandingsTableColumns { get; } = new List<string>();
 
-		protected StandingsSheetHelper(IEnumerable<string> headerColumns, IEnumerable<string> standingsTableColumns)
+		public StandingsSheetHelper(IEnumerable<string> headerColumns)
+			: this(headerColumns, null)
 		{
-			HeaderRowColumns = new List<string>(headerColumns);
-			StandingsTableColumns = new List<string>(standingsTableColumns);
 		}
 
-		/// <summary>
-		/// Gets the column index (zero-based) by header value (from <see cref="Constants"/>).
-		/// </summary>
-		/// <param name="colHeader"></param>
-		/// <returns>For example, <see cref="Constants.HDR_HOME_TEAM"/> returns 0 because it's the first column. If the column isn't being used, then returns -1.</returns>
-		public virtual int GetColumnIndexByHeader(string colHeader)
+		public StandingsSheetHelper(IEnumerable<string> headerColumns, IEnumerable<string> standingsTableColumns)
+			: base(headerColumns)
 		{
-			int idx = HeaderRowColumns.IndexOf(colHeader);
+			if ((standingsTableColumns?.Count() ?? 0) > 0)
+				StandingsTableColumns.AddRange(standingsTableColumns);		
+		}
+
+		public override int GetColumnIndexByHeader(string colHeader)
+		{
+			int idx = base.GetColumnIndexByHeader(colHeader);
+			if (idx > -1)
+				return idx;
+
+			if ((StandingsTableColumns?.Count() ?? 0) > 0)
+			{
+				idx = StandingsTableColumns.IndexOf(colHeader);
+				if (idx > -1)
+					idx += HeaderRowColumns.Count;
+			}
 			return idx;
-		}
-
-		/// <summary>
-		/// Gets the column name by header value (from <see cref="Constants"/>).
-		/// </summary>
-		/// <param name="colHeader"></param>
-		/// <returns>For example, <see cref="Constants.HDR_HOME_TEAM"/> returns "A" because it's the first column. If the column isn't being used, then returns null.</returns>
-		public string GetColumnNameByHeader(string colHeader)
-		{
-			int idx = GetColumnIndexByHeader(colHeader);
-			if (idx == -1)
-				return null;
-			return Utilities.ConvertIndexToColumnName(idx);
 		}
 
 		public string HomeTeamColumnName => GetColumnNameByHeader(Constants.HDR_HOME_TEAM);
@@ -72,7 +65,7 @@ namespace StandingsGoogleSheetsHelper
 		/// <param name="sheet"></param>
 		/// <param name="teamNameColumnWidth">The width of the team name column (after having used <see cref="SheetsClient.AutoResizeColumn(string, int)"/>, as this depends on the longest team name)</param>
 		/// <returns></returns>
-		public IEnumerable<Request> CreateCellWidthRequests(Sheet sheet, int teamNameColumnWidth)
+		public IEnumerable<Request> CreateCellWidthRequests(int? sheetId, int teamNameColumnWidth)
 		{
 			List<Request> requests = new List<Request>();
 			foreach (string header in HeaderRowColumns)
@@ -94,6 +87,8 @@ namespace StandingsGoogleSheetsHelper
 					case Constants.HDR_CALC_RANK:
 					case Constants.HDR_HOME_PTS:
 					case Constants.HDR_AWAY_PTS:
+					case Constants.HDR_TIEBREAKER:
+					case Constants.HDR_FORFEIT:
 						// slightly wider than below because the column name is longer
 						colWidth = Constants.WIDTH_WIDE_NUM_COL;
 						break;
@@ -106,7 +101,7 @@ namespace StandingsGoogleSheetsHelper
 					continue;
 
 				int colIndex = HeaderRowColumns.IndexOf(header);
-				Request request = RequestCreator.CreateCellWidthRequest(sheet.Properties.SheetId, colWidth.Value, colIndex);
+				Request request = RequestCreator.CreateCellWidthRequest(sheetId, colWidth.Value, colIndex);
 				requests.Add(request);
 			}
 			return requests;
