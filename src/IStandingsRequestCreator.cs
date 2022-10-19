@@ -321,4 +321,42 @@ namespace StandingsGoogleSheetsHelper
 			return request;
 		}
 	}
+
+	public abstract class CheckboxRequestCreator : StandingsRequestCreator, IStandingsRequestCreator
+	{
+		protected CheckboxRequestCreator(FormulaGenerator formGen, string columnHeader) 
+			: base(formGen, columnHeader)
+		{
+		}
+
+		public Request CreateRequest(StandingsRequestCreatorConfig config)
+		{
+			Request request = new Request
+			{
+				RepeatCell = new RepeatCellRequest
+				{
+					Range = new GridRange
+					{
+						SheetId = config.SheetId,
+						StartRowIndex = config.SheetStartRowIndex,
+						EndRowIndex = config.SheetStartRowIndex + config.RowCount,
+						StartColumnIndex = _columnIndex,
+						EndColumnIndex = _columnIndex + 1,
+					},
+					Cell = new CellData
+					{
+						DataValidation = new DataValidationRule
+						{
+							Condition = new BooleanCondition
+							{
+								Type = "BOOLEAN"
+							}
+						}
+					},
+					Fields = nameof(CellData.DataValidation).ToCamelCase(),
+				},
+			};
+			return request;
+		}
+	}
 }
