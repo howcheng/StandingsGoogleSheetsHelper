@@ -17,7 +17,7 @@ namespace StandingsGoogleSheetsHelper.Tests
 		{
 			Assert.Equal(config.SheetId, request.RepeatCell.Range.SheetId);
 			Assert.Equal(config.SheetStartRowIndex, request.RepeatCell.Range.StartRowIndex);
-			Assert.Equal(config.SheetStartRowIndex + config.NumTeams, request.RepeatCell.Range.EndRowIndex);
+			Assert.Equal(config.SheetStartRowIndex + config.RowCount, request.RepeatCell.Range.EndRowIndex);
 			int columnIndex = _helper.GetColumnIndexByHeader(columnHeader);
 			Assert.Equal(columnIndex, request.RepeatCell.Range.StartColumnIndex);
 		}
@@ -140,7 +140,7 @@ namespace StandingsGoogleSheetsHelper.Tests
 			FormulaGenerator fg = GetFormulaGenerator();
 			TeamRankRequestCreator creator = new TeamRankRequestCreator(fg);
 			Request request = creator.CreateRequest(config);
-			string formula = fg.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.NumTeams);
+			string formula = fg.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.RowCount);
 			ValidateFormula(request, config, formula, Constants.HDR_RANK);
 		}
 

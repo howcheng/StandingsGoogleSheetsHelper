@@ -161,7 +161,7 @@ namespace StandingsGoogleSheetsHelper
 		public string GetTeamRankFormula(string columnName, int rowNum, int startRowNum, int endRowNum)
 		{
 			string cellRange = Utilities.CreateCellRangeString(columnName, startRowNum, endRowNum, CellRangeOptions.FixRow);
-			return $"=RANK({columnName}{rowNum},{cellRange})";
+			return $"RANK({columnName}{rowNum},{cellRange})";
 		}
 
 		/// <summary>
