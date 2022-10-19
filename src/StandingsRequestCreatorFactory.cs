@@ -6,7 +6,7 @@ namespace StandingsGoogleSheetsHelper
 	/// <summary>
 	/// Factory class to get the <see cref="IStandingsRequestCreator"/> instance that is applicable for a given column in the standings table
 	/// </summary>
-	public class StandingsRequestCreatorFactory
+	public class StandingsRequestCreatorFactory : IStandingsRequestCreatorFactory
 	{
 		/// <summary>
 		/// The collection <see cref="IStandingsRequestCreator"/> instances being used
