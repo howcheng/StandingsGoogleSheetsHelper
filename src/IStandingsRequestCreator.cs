@@ -255,12 +255,11 @@ namespace StandingsGoogleSheetsHelper
 	}
 
 	/// <summary>
-	/// Creates a <see cref="Request"/> for building the column for team rank
+	/// Base class for creating a <see cref="Request"/> for building the column for rank
 	/// </summary>
-	public class TeamRankRequestCreator : StandingsRequestCreator, IStandingsRequestCreator
+	public abstract class RankRequestCreator : StandingsRequestCreator, IStandingsRequestCreator
 	{
-		public TeamRankRequestCreator(FormulaGenerator formGen) 
-			: base(formGen, Constants.HDR_RANK)
+		protected RankRequestCreator(FormulaGenerator formGen, string columnHeader) : base(formGen, columnHeader)
 		{
 		}
 
@@ -269,6 +268,17 @@ namespace StandingsGoogleSheetsHelper
 			Request request = RequestCreator.CreateRepeatedSheetFormulaRequest(config.SheetId, config.SheetStartRowIndex, _columnIndex, config.RowCount,
 				_formulaGenerator.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.RowCount));
 			return request;
+		}
+	}
+
+	/// <summary>
+	/// Creates a <see cref="Request"/> for building the column for team rank
+	/// </summary>
+	public class TeamRankRequestCreator : RankRequestCreator
+	{
+		public TeamRankRequestCreator(FormulaGenerator formGen) 
+			: base(formGen, Constants.HDR_RANK)
+		{
 		}
 	}
 

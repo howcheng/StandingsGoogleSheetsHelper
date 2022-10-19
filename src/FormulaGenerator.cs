@@ -131,17 +131,37 @@ namespace StandingsGoogleSheetsHelper
 		}
 
 		/// <summary>
-		/// Gets the formula for determining the team rank
+		/// Gets the formula for determining the team rank (used when creating a <see cref="Google.Apis.Sheets.v4.Data.RepeatCellRequest"/>)
 		/// </summary>
 		/// <param name="startRowNum">Row number of the first team in the standings table</param>
 		/// <param name="endRowNum">Row number of the last team in the standings table</param>
 		/// <returns></returns>
 		/// <remarks>RANK(M3,M$3:M$18)</remarks>
-		public string GetTeamRankFormula(int startRowNum, int endRowNum)
+		public string GetTeamRankFormula(int startRowNum, int endRowNum) => GetTeamRankFormula(startRowNum, startRowNum, endRowNum);
+
+		/// <summary>
+		/// Gets the formula for determining the team rank
+		/// </summary>
+		/// <param name="rowNum">Row number of the current team that we are generating the formula for</param>
+		/// <param name="startRowNum">Row number of the first team in the standings table</param>
+		/// <param name="endRowNum">Row number of the last team in the standings table</param>
+		/// <returns></returns>
+		/// <remarks>RANK(M3,M$3:M$18)</remarks>
+		public string GetTeamRankFormula(int rowNum, int startRowNum, int endRowNum) => GetTeamRankFormula(_sheetHelper.TotalPointsColumnName, rowNum, startRowNum, endRowNum);
+
+		/// <summary>
+		/// Gets the formula for determining the team rank
+		/// </summary>
+		/// <param name="columnName">Name of the column (e.g., "M") to hold the formula</param>
+		/// <param name="rowNum">Row number of the current team that we are generating the formula for</param>
+		/// <param name="startRowNum">Row number of the first team in the standings table</param>
+		/// <param name="endRowNum">Row number of the last team in the standings table</param>
+		/// <returns></returns>
+		/// <remarks>RANK(M3,M$3:M$18)</remarks>
+		public string GetTeamRankFormula(string columnName, int rowNum, int startRowNum, int endRowNum)
 		{
-			string columnName = _sheetHelper.TotalPointsColumnName;
 			string cellRange = Utilities.CreateCellRangeString(columnName, startRowNum, endRowNum, CellRangeOptions.FixRow);
-			return $"=RANK({columnName}{startRowNum},{cellRange})";
+			return $"=RANK({columnName}{rowNum},{cellRange})";
 		}
 
 		/// <summary>
