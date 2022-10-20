@@ -260,7 +260,7 @@ namespace StandingsGoogleSheetsHelper
 		}
 
 		protected override string GenerateFormula(StandingsRequestCreatorConfig config) 
-			=> _formulaGenerator.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.RowCount);
+			=> $"={_formulaGenerator.GetTeamRankFormula(config.SheetStartRowIndex + 1, config.SheetStartRowIndex + config.RowCount)}";
 	}
 
 	/// <summary>
@@ -315,6 +315,8 @@ namespace StandingsGoogleSheetsHelper
 			: base(formGen, columnHeader)
 		{
 		}
+
+		protected override string GenerateFormula(StandingsRequestCreatorConfig config) => throw new NotImplementedException();
 
 		public override Request CreateRequest(StandingsRequestCreatorConfig config)
 		{
