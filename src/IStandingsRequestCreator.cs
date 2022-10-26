@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using Google.Apis.Sheets.v4.Data;
 using GoogleSheetsHelper;
 
@@ -24,6 +22,9 @@ namespace StandingsGoogleSheetsHelper
 		/// <returns></returns>
 		bool IsApplicableToColumn(string columnHeader);
 
+		/// <summary>
+		/// Gets the column header value that is applicable to this instance
+		/// </summary>
 		string ColumnHeader { get; }
 	}
 
@@ -47,7 +48,7 @@ namespace StandingsGoogleSheetsHelper
 			_columnIndex = _formulaGenerator.SheetHelper.GetColumnIndexByHeader(columnHeader);
 		}
 
-		public bool IsApplicableToColumn(string columnHeader) => columnHeader == _columnHeader;
+		public virtual bool IsApplicableToColumn(string columnHeader) => columnHeader == _columnHeader;
 
 		public string ColumnHeader => _columnHeader;
 

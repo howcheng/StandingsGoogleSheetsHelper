@@ -46,6 +46,7 @@ namespace StandingsGoogleSheetsHelper
 		public string HomeGoalsColumnName => GetColumnNameByHeader(Constants.HDR_HOME_GOALS);
 		public string AwayGoalsColumnName => GetColumnNameByHeader(Constants.HDR_AWAY_GOALS);
 		public string AwayTeamColumnName => GetColumnNameByHeader(Constants.HDR_AWAY_TEAM);
+		public string ForfeitColumnName => GetColumnNameByHeader(Constants.HDR_FORFEIT);
 		public string TeamNameColumnName => GetColumnNameByHeader(Constants.HDR_TEAM_NAME);
 		public string GamesPlayedColumnName => GetColumnNameByHeader(Constants.HDR_GAMES_PLAYED);
 		public string NumWinsColumnName => GetColumnNameByHeader(Constants.HDR_NUM_WINS);
@@ -65,10 +66,12 @@ namespace StandingsGoogleSheetsHelper
 		/// <param name="sheet"></param>
 		/// <param name="teamNameColumnWidth">The width of the team name column (after having used <see cref="SheetsClient.AutoResizeColumn(string, int)"/>, as this depends on the longest team name)</param>
 		/// <returns></returns>
-		public IEnumerable<Request> CreateCellWidthRequests(int? sheetId, int teamNameColumnWidth)
+		public IEnumerable<Request> CreateCellWidthRequests(int? sheetId, int teamNameColumnWidth) => CreateCellWidthRequests(sheetId, HeaderRowColumns, teamNameColumnWidth);
+
+		public IEnumerable<Request> CreateCellWidthRequests(int? sheetId, IEnumerable<string> columnHeaders, int teamNameColumnWidth)
 		{
 			List<Request> requests = new List<Request>();
-			foreach (string header in HeaderRowColumns)
+			foreach (string header in columnHeaders)
 			{
 				int? colWidth = null;
 				switch (header)
@@ -100,7 +103,7 @@ namespace StandingsGoogleSheetsHelper
 				if (!colWidth.HasValue)
 					continue;
 
-				int colIndex = HeaderRowColumns.IndexOf(header);
+				int colIndex = GetColumnIndexByHeader(header);
 				Request request = RequestCreator.CreateCellWidthRequest(sheetId, colWidth.Value, colIndex);
 				requests.Add(request);
 			}
