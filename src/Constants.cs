@@ -36,9 +36,19 @@ namespace StandingsGoogleSheetsHelper
 		public const string HDR_RED_CARDS = "RC";
 		public const string HDR_HOME_PTS = "Pts (H)";
 		public const string HDR_AWAY_PTS = "Pts (A)";
-		public const string HDR_CALC_RANK = "C-RANK"; // "Calculated rank" -- rank based on the formula but doesn't take into account a manual tiebreaker
-		public const string HDR_TIEBREAKER = "TBW";
+		public const string HDR_CALC_RANK = "C-RANK"; // "Calculated rank" -- rank based on the formula but doesn't take into account the tiebreakers
 		public const string HDR_FORFEIT = "FORF";
+		public const string HDR_TIEBREAKER_H2H = "TBH2H";
+		public const string HDR_TIEBREAKER_GOALS_AGAINST_HOME = "TBHGA";
+		public const string HDR_TIEBREAKER_GOALS_AGAINST_AWAY = "TBAGA";
+		public const string HDR_TIEBREAKER_GOALS_FOR_HOME = "TBHGF";
+		public const string HDR_TIEBREAKER_GOALS_FOR_AWAY = "TBAGF";
+		public const string HDR_TIEBREAKER_WINS = "TBW";
+		public const string HDR_TIEBREAKER_CARDS = "TBC";
+		public const string HDR_TIEBREAKER_GOALS_AGAINST = "TBGA";
+		public const string HDR_TIEBREAKER_GOAL_DIFF = "TBGD";
+		public const string HDR_TIEBREAKER_KFTM_WINNER = "TBPK";
+
 
 		/// <summary>
 		/// The standard headers for the columns to enter game scores (in this order): home team, home score, away score, away team, game winner

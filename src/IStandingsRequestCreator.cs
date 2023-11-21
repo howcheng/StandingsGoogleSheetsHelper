@@ -341,6 +341,10 @@ namespace StandingsGoogleSheetsHelper
 							{
 								Type = "BOOLEAN"
 							}
+						},
+						UserEnteredValue = new ExtendedValue
+						{
+							BoolValue = false, // default to unchecked (if we don't set, it will be null, which causes weird things when sorting)
 						}
 					},
 					Fields = nameof(CellData.DataValidation).ToCamelCase(),

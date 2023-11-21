@@ -90,8 +90,17 @@ namespace StandingsGoogleSheetsHelper
 					case Constants.HDR_CALC_RANK:
 					case Constants.HDR_HOME_PTS:
 					case Constants.HDR_AWAY_PTS:
-					case Constants.HDR_TIEBREAKER:
+					case Constants.HDR_TIEBREAKER_H2H:
 					case Constants.HDR_FORFEIT:
+					case Constants.HDR_TIEBREAKER_GOALS_AGAINST_HOME:
+					case Constants.HDR_TIEBREAKER_GOALS_AGAINST_AWAY:
+					case Constants.HDR_TIEBREAKER_GOALS_FOR_HOME:
+					case Constants.HDR_TIEBREAKER_GOALS_FOR_AWAY:
+					case Constants.HDR_TIEBREAKER_WINS:
+					case Constants.HDR_TIEBREAKER_CARDS:
+					case Constants.HDR_TIEBREAKER_GOALS_AGAINST:
+					case Constants.HDR_TIEBREAKER_GOAL_DIFF:
+					case Constants.HDR_TIEBREAKER_KFTM_WINNER:
 						// slightly wider than below because the column name is longer
 						colWidth = Constants.WIDTH_WIDE_NUM_COL;
 						break;
