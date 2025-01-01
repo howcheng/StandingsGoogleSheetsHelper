@@ -191,6 +191,7 @@ namespace StandingsGoogleSheetsHelper
 		/// NOTE: Does not include the leading <c>=</c> because <see cref="ScoreBasedStandingsRequestCreator"/> will include it</remarks>
 		public string GetGoalsAgainstFormula(int startRowNum, int endRowNum, string firstTeamCell) => GetGoalsFormula(startRowNum, endRowNum, firstTeamCell, false);
 
+		/// <returns>SUMIFS(C$21:C$28, A$21:A$28,"="&Teams!A2)</returns>
 		private string GetGoalsFormula(int startRowNum, int endRowNum, string firstTeamCell, bool goalsFor)
 			=> GetGoalsFormula(_sheetHelper.HomeGoalsColumnName, _sheetHelper.AwayGoalsColumnName, startRowNum, endRowNum, firstTeamCell, goalsFor);
 
@@ -211,7 +212,10 @@ namespace StandingsGoogleSheetsHelper
 			string awayGoalsCellRange = Utilities.CreateCellRangeString(awayGoalsColName, startRowNum, endRowNum, CellRangeOptions.FixRow);
 			string homeTeamsCellRange = GetFormulaForGameRangePerTeam(_sheetHelper.HomeTeamColumnName, startRowNum, endRowNum, firstTeamCell);
 			string awayTeamsCellRange = GetFormulaForGameRangePerTeam(_sheetHelper.AwayTeamColumnName, startRowNum, endRowNum, firstTeamCell);
-			return $"SUMIFS({(goalsFor ? homeGoalsCellRange : awayGoalsCellRange)}, {homeTeamsCellRange})+SUMIFS({(goalsFor ? awayGoalsCellRange : homeGoalsCellRange)}, {awayTeamsCellRange})";
+
+			string homeGoalsFormula = $"{(goalsFor ? homeGoalsCellRange : awayGoalsCellRange)}, {homeTeamsCellRange}";
+			string awayGoalsFormula = $"{(goalsFor ? awayGoalsCellRange : homeGoalsCellRange)}, {awayTeamsCellRange}";
+			return $"SUMIFS({homeGoalsFormula})+SUMIFS({awayGoalsFormula})";
 		}
 
 		/// <summary>
@@ -227,7 +231,7 @@ namespace StandingsGoogleSheetsHelper
 			return $"={gfStartCell} - {gaStartCell}";
 		}
 
-		private string GetFormulaForGameRangePerTeam(string columnName, int startRow, int endRow, string firstTeamCell)
+		protected string GetFormulaForGameRangePerTeam(string columnName, int startRow, int endRow, string firstTeamCell)
 		{
 			string cellRange = Utilities.CreateCellRangeString(columnName, startRow, endRow, CellRangeOptions.FixRow);
 			return $"{cellRange},\"=\"&{firstTeamCell}"; // A$21:A$28,"="&Teams!A2
